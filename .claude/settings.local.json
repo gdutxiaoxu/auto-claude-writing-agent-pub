@@ -1,0 +1,62 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(python3:*)",
+      "Bash(git:*)",
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(sed:*)",
+      "Bash(find:*)",
+      "Bash(touch:*)",
+      "Bash(chmod:*)",
+      "Bash(curl:*)",
+      "Bash(echo:*)",
+      "Bash(source:*)",
+      "Bash(make:*)",
+      "Bash(docker:*)",
+      "Bash(poetry:*)",
+      "Bash(node:*)",
+      "Bash(pnpm:*)",
+      "Bash(yarn:*)",
+      "Bash(sqlite3:*)",
+      "Read(*)",
+      "Write(*)",
+      "Edit(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "WebSearch",
+      "WebFetch",
+      "mcp__zread__get_repo_structure",
+      "mcp__zread__read_file",
+      "mcp__zread__search_doc",
+      "mcp__web-reader__webReader",
+      "mcp__web_reader__webReader",
+      "mcp__web-search-prime__webSearchPrime",
+      "Bash(FLASK_ENV=development python:*)",
+      "Bash(/Volumes/T7_MAC/kg/auto_public_article/kill_port.sh:*)",
+      "Bash(lsof:*)",
+      "Bash(tree:*)"
+    ],
+    "deny": [
+      "Read(./secrets/**)",
+      "Read(**/credentials.json)",
+      "Bash(rm: /*)",
+      "Bash(rm: -rf /*)"
+    ],
+    "ask": [
+      "Read(./.env)",
+      "Read(./.env.*)"
+    ],
+    "language": "chinese"
+  }
+}
