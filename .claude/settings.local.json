@@ -57,6 +57,7 @@
       "Read(./.env)",
       "Read(./.env.*)"
     ],
-    "language": "chinese"
-  }
+    "defaultMode": "acceptEdits"
+  },
+  "language": "chinese"
 }
