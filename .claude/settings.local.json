@@ -45,7 +45,17 @@
       "Bash(FLASK_ENV=development python:*)",
       "Bash(/Volumes/T7_MAC/kg/auto_public_article/kill_port.sh:*)",
       "Bash(lsof:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Skill(think-aloud)",
+      "Skill(think-aloud:*)",
+      "Skill(task-judgment)",
+      "Skill(task-judgment:*)",
+      "Skill(writing-principles)",
+      "Skill(writing-principles:*)",
+      "Skill(mp-wechat-flow)",
+      "Skill(mp-wechat-flow:*)",
+      "Skill(frontend-design)",
+      "Skill(frontend-design:*)"
     ],
     "deny": [
       "Read(./secrets/**)",

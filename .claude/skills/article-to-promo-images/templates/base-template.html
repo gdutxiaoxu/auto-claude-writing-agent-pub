@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{PAGE_TITLE}}</title>
+    <!-- 使用国内CDN镜像 -->
+    <link href="https://fonts.loli.net/css2?family={{FONT_FAMILIES}}" rel="stylesheet">
+    <style>
+        /* ========== 基础样式 ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: {{BODY_FONT}};
+            background: {{BACKGROUND}};
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 20px;
+            border-bottom: 1px solid {{BORDER_COLOR}};
+        }
+
+        .header h1 {
+            font-family: {{TITLE_FONT}};
+            font-size: 2.5rem;
+            color: {{PRIMARY_COLOR}};
+            text-shadow: 0 0 20px {{PRIMARY_GLOW}};
+            margin-bottom: 10px;
+            letter-spacing: 3px;
+        }
+
+        .image-card {
+            background: {{CARD_BACKGROUND}};
+            border-radius: 16px;
+            margin-bottom: 40px;
+            overflow: hidden;
+            border: 1px solid {{CARD_BORDER}};
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .image-header {
+            padding: 20px 30px;
+            background: {{HEADER_BACKGROUND}};
+            border-bottom: 1px solid {{HEADER_BORDER}};
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .image-title {
+            font-family: {{TITLE_FONT}};
+            font-size: 1rem;
+            color: {{PRIMARY_COLOR}};
+            letter-spacing: 2px;
+        }
+
+        .image-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: {{MONO_FONT}};
+            font-size: 0.85rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-preview {
+            background: linear-gradient(135deg, {{PRIMARY_COLOR}} 0%, {{PRIMARY_DARK}} 100%);
+            color: {{BTN_TEXT_COLOR}};
+        }
+
+        .btn-preview:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px {{PRIMARY_SHADOW}};
+        }
+
+        .btn-download {
+            background: transparent;
+            border: 2px solid {{SECONDARY_COLOR}};
+            color: {{SECONDARY_COLOR}};
+        }
+
+        .btn-download:hover {
+            background: {{SECONDARY_COLOR}};
+            color: {{BTN_TEXT_COLOR}};
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px {{SECONDARY_SHADOW}};
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 50%;
+            margin-left: -8px;
+            margin-top: -8px;
+            border: 2px solid transparent;
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .btn-loading .btn-text {
+            opacity: 0;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast 通知 */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: linear-gradient(135deg, {{PRIMARY_COLOR}} 0%, {{PRIMARY_DARK}} 100%);
+            color: {{BTN_TEXT_COLOR}};
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            box-shadow: 0 10px 40px {{PRIMARY_SHADOW}};
+            z-index: 2000;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, {{SECONDARY_COLOR}} 0%, {{SECONDARY_DARK}} 100%);
+        }
+
+        /* ========== 图片容器基础样式 ========== */
+        .img-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            overflow: hidden;
+            background: {{IMG_BACKGROUND}};
+        }
+
+        /* ========== 预览模态框 ========== */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            font-size: 40px;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: {{PRIMARY_COLOR}};
+        }
+
+        /* 响应式 */
+        @media (max-width: 1200px) {
+            .img-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 使用说明注释 -->
+        <!--
+        ============================================================
+        使用说明：
+        1. 在浏览器中打开此文件
+        2. 点击"预览"查看大图
+        3. 点击"下载"保存PNG图片
+        4. ESC键关闭预览
+
+        生成时间：{{TIMESTAMP}}
+        文章来源：{{SOURCE}}
+        图片数量：{{IMAGE_COUNT}}
+        设计风格：{{STYLE}}
+        ============================================================
+        -->
+
+        <div class="header">
+            <h1>{{HEADER_TITLE}}</h1>
+        </div>
+
+        <!-- 动态图片内容将在这里生成 -->
+        {{IMAGE_CARDS}}
+    </div>
+
+    <!-- 预览模态框 -->
+    <div class="modal" id="previewModal" onclick="closeModal()">
+        <span class="modal-close">&times;</span>
+        <div class="modal-content" id="modalContent"></div>
+    </div>
+
+    <!-- Toast 通知 -->
+    <div class="toast" id="toast"></div>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        // Toast 通知函数
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = isError ? 'toast error show' : 'toast show';
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // 下载图片函数
+        async function downloadImage(imgId, filename, button) {
+            const element = document.getElementById(imgId);
+            button.classList.add('btn-loading');
+            button.disabled = true;
+
+            try {
+                await new Promise(resolve => setTimeout(resolve, 50));
+
+                const canvas = await html2canvas(element, {
+                    scale: 2,
+                    backgroundColor: '{{BACKGROUND}}',
+                    logging: false,
+                    useCORS: true,
+                    allowTaint: true,
+                    imageTimeout: 5000,
+                    removeContainer: true
+                });
+
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.download = filename + '.png';
+                        link.href = url;
+                        link.click();
+                        setTimeout(() => URL.revokeObjectURL(url), 100);
+                        showToast('✓ 下载成功！');
+                    } else {
+                        showToast('下载失败，请重试', true);
+                    }
+                    button.classList.remove('btn-loading');
+                    button.disabled = false;
+                }, 'image/png');
+            } catch (error) {
+                console.error('下载出错:', error);
+                showToast('下载出错：' + error.message, true);
+                button.classList.remove('btn-loading');
+                button.disabled = false;
+            }
+        }
+
+        // 预览图片函数
+        function previewImage(imgId) {
+            const element = document.getElementById(imgId);
+            const modal = document.getElementById('previewModal');
+            const content = document.getElementById('modalContent');
+            const clone = element.cloneNode(true);
+            clone.style.width = '100%';
+            clone.style.maxWidth = '1200px';
+            content.innerHTML = '';
+            content.appendChild(clone);
+            modal.classList.add('active');
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('previewModal').classList.remove('active');
+        }
+
+        // ESC键关闭预览
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

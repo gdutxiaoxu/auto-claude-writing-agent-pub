@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code Skills 教程系列 - 宣传图</title>
+    <!-- 使用国内CDN镜像 -->
+    <link href="https://fonts.loli.net/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- 字体加载优化：优先显示系统字体 -->
+    <style>
+        @font-face {
+            font-family: 'Orbitron';
+            src: local('Arial Black'), local('SimHei');
+            font-display: swap;
+        }
+    </style>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #0a0e17;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 20px;
+            border-bottom: 1px solid rgba(0, 255, 242, 0.2);
+        }
+
+        .header h1 {
+            font-family: 'Orbitron', 'Arial Black', 'SimHei', sans-serif;
+            font-size: 2.5rem;
+            color: #00fff2;
+            text-shadow: 0 0 20px rgba(0, 255, 242, 0.5);
+            margin-bottom: 10px;
+            letter-spacing: 3px;
+        }
+
+        .image-card {
+            background: linear-gradient(145deg, #0d1321 0%, #0a0e17 100%);
+            border-radius: 16px;
+            margin-bottom: 40px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 255, 242, 0.15);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .image-header {
+            padding: 20px 30px;
+            background: rgba(0, 255, 242, 0.05);
+            border-bottom: 1px solid rgba(0, 255, 242, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .image-title {
+            font-family: 'Orbitron', 'Arial Black', 'SimHei', sans-serif;
+            font-size: 1rem;
+            color: #00fff2;
+            letter-spacing: 2px;
+        }
+
+        .image-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-preview {
+            background: linear-gradient(135deg, #00fff2 0%, #00c4bd 100%);
+            color: #0a0e17;
+        }
+
+        .btn-preview:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 255, 242, 0.4);
+        }
+
+        .btn-download {
+            background: transparent;
+            border: 2px solid #ff6b35;
+            color: #ff6b35;
+        }
+
+        .btn-download:hover {
+            background: #ff6b35;
+            color: #0a0e17;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 50%;
+            margin-left: -8px;
+            margin-top: -8px;
+            border: 2px solid transparent;
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .btn-loading .btn-text {
+            opacity: 0;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast 通知 */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: linear-gradient(135deg, #00fff2 0%, #00c4bd 100%);
+            color: #0a0e17;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            box-shadow: 0 10px 40px rgba(0, 255, 242, 0.3);
+            z-index: 2000;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+        }
+
+        /* ========== 图片1：封面 ========== */
+        .img1-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            overflow: hidden;
+        }
+
+        .img1-bg {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #0d1526 0%, #1a2332 50%, #0d1526 100%);
+        }
+
+        .img1-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0, 255, 242, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 242, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        .img1-scanline {
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.1) 2px,
+                rgba(0, 0, 0, 0.1) 4px
+            );
+        }
+
+        .img1-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0, 255, 242, 0.15) 0%, transparent 70%);
+            top: -200px;
+            right: -200px;
+        }
+
+        .img1-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 60px 80px;
+            height: 100%;
+        }
+
+        .img1-left {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .claude-icon {
+            width: 180px;
+            height: 180px;
+            position: relative;
+        }
+
+        .claude-icon-inner {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #00fff2 0%, #7b2cbf 100%);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            box-shadow:
+                0 0 60px rgba(0, 255, 242, 0.4),
+                inset 0 0 30px rgba(255, 255, 255, 0.1);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .code-brackets {
+            font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 120px;
+            color: #00fff2;
+            text-shadow: 0 0 30px rgba(0, 255, 242, 0.6);
+            opacity: 0.3;
+        }
+
+        .img1-right {
+            flex: 1;
+            margin-left: 60px;
+        }
+
+        .img1-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: #0a0e17;
+            font-family: 'Orbitron', 'Arial Black', 'SimHei', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+
+        .img1-title {
+            font-family: 'Orbitron', 'Arial Black', 'SimHei', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: #ffffff;
+            line-height: 1.1;
+            margin-bottom: 15px;
+            text-shadow: 0 0 40px rgba(0, 255, 242, 0.3);
+        }
+
+        .img1-title-highlight {
+            color: #00fff2;
+        }
+
+        .img1-subtitle {
+            font-size: 1.4rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        .img1-tags {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .img1-tag {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: rgba(0, 255, 242, 0.1);
+            border: 1px solid rgba(0, 255, 242, 0.3);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #00fff2;
+        }
+
+        .img1-tag-icon {
+            width: 8px;
+            height: 8px;
+            background: #00fff2;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00fff2;
+        }
+
+        /* ========== 图片2：痛点对比 ========== */
+        .img2-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0d1321 0%, #1a1f2e 100%);
+        }
+
+        .img2-bg-pattern {
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 20% 50%, rgba(255, 107, 53, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(0, 255, 242, 0.05) 0%, transparent 50%);
+        }
+
+        .img2-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            padding: 50px 60px;
+            height: 100%;
+        }
+
+        .img2-panel {
+            flex: 1;
+            padding: 40px;
+            border-radius: 16px;
+        }
+
+        .img2-panel-pain {
+            background: linear-gradient(145deg, rgba(255, 107, 53, 0.1) 0%, rgba(255, 107, 53, 0.05) 100%);
+            border: 2px solid rgba(255, 107, 53, 0.3);
+        }
+
+        .img2-panel-solution {
+            background: linear-gradient(145deg, rgba(0, 255, 242, 0.1) 0%, rgba(0, 255, 242, 0.05) 100%);
+            border: 2px solid rgba(0, 255, 242, 0.3);
+        }
+
+        .img2-panel-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .img2-panel-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .img2-panel-pain .img2-panel-icon {
+            background: rgba(255, 107, 53, 0.2);
+            border: 1px solid rgba(255, 107, 53, 0.4);
+        }
+
+        .img2-panel-solution .img2-panel-icon {
+            background: rgba(0, 255, 242, 0.2);
+            border: 1px solid rgba(0, 255, 242, 0.4);
+        }
+
+        .img2-panel-title {
+            font-family: 'Orbitron', 'Arial Black', 'SimHei', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .img2-panel-pain .img2-panel-title {
+            color: #ff6b35;
+        }
+
+        .img2-panel-solution .img2-panel-title {
+            color: #00fff2;
+        }
+
+        .img2-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .img2-panel-pain .img2-item {
+            background: rgba(255, 107, 53, 0.05);
+        }
+
+        .img2-panel-pain .img2-item:hover {
+            background: rgba(255, 107, 53, 0.1);
+        }
+
+        .img2-panel-solution .img2-item {
+            background: rgba(0, 255, 242, 0.05);
+        }
+
+        .img2-panel-solution .img2-item:hover {
+            background: rgba(0, 255, 242, 0.1);
+        }
+
+        .img2-item-icon {
+            font-size: 20px;
+            margin-top: 2px;
+        }
+
+        .img2-item-text {
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .img2-panel-pain .img2-item-text {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .img2-panel-solution .img2-item-text {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .img2-arrow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0 30px;
+        }
+
+        .img2-arrow-line {
+            width: 4px;
+            height: 80px;
+            background: linear-gradient(180deg, #ff6b35 0%, #00fff2 100%);
+            position: relative;
+        }
+
+        .img2-arrow-line::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 15px solid #00fff2;
+        }
+
+        .img2-arrow-text {
+            margin-top: 15px;
+            font-family: 'Orbitron', 'Arial Black', 'SimHei', sans-serif;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 2px;
+        }
+
+        /* ========== 图片3：金字塔 ========== */
+        .img3-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0d1321 0%, #1a1f2e 100%);
+        }
+
+        .img3-bg-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(123, 44, 191, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(123, 44, 191, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0.5;
+        }
+
+        .img3-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 80px;
+            padding: 60px 80px;
+            height: 100%;
+        }
+
+        .img3-pyramid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .img3-level {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 30px;
+            border-radius: 12px;
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .img3-level:hover {
+            transform: scale(1.02);
+        }
+
+        .img3-level-1 {
+            width: 200px;
+            background: linear-gradient(135deg, rgba(0, 255, 242, 0.2) 0%, rgba(0, 255, 242, 0.1) 100%);
+            border: 2px solid rgba(0, 255, 242, 0.4);
+        }
+
+        .img3-level-2 {
+            width: 320px;
+            background: linear-gradient(135deg, rgba(123, 44, 191, 0.2) 0%, rgba(123, 44, 191, 0.1) 100%);
+            border: 2px solid rgba(123, 44, 191, 0.4);
+        }
+
+        .img3-level-3 {
+            width: 440px;
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.2) 0%, rgba(255, 107, 53, 0.1) 100%);
+            border: 2px solid rgba(255, 107, 53, 0.4);
+        }
+
+        .img3-level-label {
+            font-family: 'Orbitron', 'Arial Black', 'SimHei', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        .img3-level-1 .img3-level-label {
+            color: #00fff2;
+        }
+
+        .img3-level-2 .img3-level-label {
+            color: #b86ae0;
+        }
+
+        .img3-level-3 .img3-level-label {
+            color: #ff6b35;
+        }
+
+        .img3-level-desc {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .img3-level-token {
+            position: absolute;
+            right: -60px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.4);
+            padding: 5px 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+
+        .img3-info {
+            flex: 1;
+            max-width: 450px;
+        }
+
+        .img3-info-title {
+            font-family: 'Orbitron', 'Arial Black', 'SimHei', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 20px;
+        }
+
+        .img3-info-title-accent {
+            color: #00fff2;
+        }
+
+        .img3-info-desc {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.7;
+            margin-bottom: 30px;
+        }
+
+        .img3-formula {
+            background: rgba(0, 255, 242, 0.05);
+            border: 2px solid rgba(0, 255, 242, 0.2);
+            border-radius: 12px;
+            padding: 25px;
+        }
+
+        .img3-formula-title {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        .img3-formula-content {
+            font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 1rem;
+            color: #00fff2;
+            line-height: 1.8;
+        }
+
+        .img3-formula-highlight {
+            color: #ff6b35;
+            font-weight: 700;
+        }
+
+        /* ========== 图片4：时间轴 ========== */
+        .img4-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0d1321 0%, #1a1f2e 100%);
+        }
+
+        .img4-bg-glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(ellipse at 20% 30%, rgba(0, 255, 242, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(123, 44, 191, 0.08) 0%, transparent 50%);
+        }
+
+        .img4-content {
+            position: relative;
+            z-index: 2;
+            padding: 50px 60px;
+            height: 100%;
+        }
+
+        .img4-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .img4-title {
+            font-family: 'Orbitron', 'Arial Black', 'SimHei', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .img4-subtitle {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .img4-timeline {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            position: relative;
+            padding: 40px 20px;
+        }
+
+        .img4-timeline::before {
+            content: '';
+            position: absolute;
+            top: 80px;
+            left: 50px;
+            right: 50px;
+            height: 3px;
+            background: linear-gradient(90deg,
+                rgba(0, 255, 242, 0.5) 0%,
+                rgba(123, 44, 191, 0.5) 50%,
+                rgba(0, 255, 242, 0.5) 100%);
+        }
+
+        .img4-chapter {
+            position: relative;
+            width: 150px;
+            text-align: center;
+        }
+
+        .img4-chapter-icon {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 15px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .img4-chapter-beginner .img4-chapter-icon {
+            background: linear-gradient(135deg, #00fff2 0%, #00c4bd 100%);
+            box-shadow: 0 0 20px rgba(0, 255, 242, 0.4);
+        }
+
+        .img4-chapter-advanced .img4-chapter-icon {
+            background: linear-gradient(135deg, #b86ae0 0%, #7b2cbf 100%);
+            box-shadow: 0 0 20px rgba(123, 44, 191, 0.4);
+        }
+
+        .img4-chapter-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .img4-chapter-beginner .img4-chapter-badge {
+            background: rgba(0, 255, 242, 0.15);
+            color: #00fff2;
+            border: 1px solid rgba(0, 255, 242, 0.3);
+        }
+
+        .img4-chapter-advanced .img4-chapter-badge {
+            background: rgba(123, 44, 191, 0.15);
+            color: #b86ae0;
+            border: 1px solid rgba(123, 44, 191, 0.3);
+        }
+
+        .img4-chapter-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 5px;
+        }
+
+        .img4-chapter-desc {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.5);
+            line-height: 1.4;
+        }
+
+        /* 预览模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            font-size: 40px;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: #00fff2;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1200px) {
+            .img1-content {
+                flex-direction: column;
+                text-align: center;
+                padding: 40px;
+            }
+
+            .img1-left {
+                margin-bottom: 30px;
+            }
+
+            .img1-tags {
+                justify-content: center;
+            }
+
+            .img2-content {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .img2-arrow {
+                transform: rotate(90deg);
+            }
+
+            .img3-content {
+                flex-direction: column;
+                gap: 40px;
+            }
+
+            .img4-timeline {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 30px;
+            }
+
+            .img4-timeline::before {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>CLAUDE CODE SKILLS 教程系列</h1>
+        </div>
+
+        <!-- 图片1：封面 -->
+        <div class="image-card">
+            <div class="image-header">
+                <span class="image-title">IMAGE 01 - 系列封面</span>
+                <div class="image-actions">
+                    <button class="btn btn-preview" onclick="previewImage('img1')"><span class="btn-text">预览</span></button>
+                    <button class="btn btn-download" onclick="downloadImage('img1', 'claude-skills-cover', this)"><span class="btn-text">下载</span></button>
+                </div>
+            </div>
+            <div class="img1-container" id="img1">
+                <div class="img1-bg"></div>
+                <div class="img1-grid"></div>
+                <div class="img1-scanline"></div>
+                <div class="img1-glow"></div>
+                <div class="img1-content">
+                    <div class="img1-left">
+                        <div class="claude-icon">
+                            <div class="claude-icon-inner">C</div>
+                        </div>
+                        <div class="code-brackets">&lt;/&gt;</div>
+                    </div>
+                    <div class="img1-right">
+                        <div class="img1-badge">教程系列</div>
+                        <h1 class="img1-title">
+                            Claude Code<br>
+                            <span class="img1-title-highlight">Skills</span>
+                        </h1>
+                        <p class="img1-subtitle">告别重复指令，打造专属智能编程助手</p>
+                        <div class="img1-tags">
+                            <div class="img1-tag">
+                                <span class="img1-tag-icon"></span>
+                                一次配置自动调用
+                            </div>
+                            <div class="img1-tag">
+                                <span class="img1-tag-icon"></span>
+                                知识封装团队共享
+                            </div>
+                            <div class="img1-tag">
+                                <span class="img1-tag-icon"></span>
+                                Token节省90%+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 图片2：痛点对比 -->
+        <div class="image-card">
+            <div class="image-header">
+                <span class="image-title">IMAGE 02 - 痛点解决</span>
+                <div class="image-actions">
+                    <button class="btn btn-preview" onclick="previewImage('img2')"><span class="btn-text">预览</span></button>
+                    <button class="btn btn-download" onclick="downloadImage('img2', 'claude-skills-pain-points', this)"><span class="btn-text">下载</span></button>
+                </div>
+            </div>
+            <div class="img2-container" id="img2">
+                <div class="img2-bg-pattern"></div>
+                <div class="img2-content">
+                    <div class="img2-panel img2-panel-pain">
+                        <div class="img2-panel-header">
+                            <div class="img2-panel-icon">⚠</div>
+                            <span class="img2-panel-title">痛点区域</span>
+                        </div>
+                        <div class="img2-item">
+                            <span class="img2-item-icon">🔴</span>
+                            <span class="img2-item-text">重复描述相同背景信息</span>
+                        </div>
+                        <div class="img2-item">
+                            <span class="img2-item-icon">🔴</span>
+                            <span class="img2-item-text">专业知识难以复用传递</span>
+                        </div>
+                        <div class="img2-item">
+                            <span class="img2-item-icon">🔴</span>
+                            <span class="img2-item-text">团队协作标准不统一</span>
+                        </div>
+                    </div>
+                    <div class="img2-arrow">
+                        <div class="img2-arrow-line"></div>
+                        <span class="img2-arrow-text">TRANSFORM</span>
+                    </div>
+                    <div class="img2-panel img2-panel-solution">
+                        <div class="img2-panel-header">
+                            <div class="img2-panel-icon">✓</div>
+                            <span class="img2-panel-title">解决方案</span>
+                        </div>
+                        <div class="img2-item">
+                            <span class="img2-item-icon">🟢</span>
+                            <span class="img2-item-text">技能自动加载上下文</span>
+                        </div>
+                        <div class="img2-item">
+                            <span class="img2-item-icon">🟢</span>
+                            <span class="img2-item-text">知识打包Git仓库共享</span>
+                        </div>
+                        <div class="img2-item">
+                            <span class="img2-item-icon">🟢</span>
+                            <span class="img2-item-text">团队统一配置标准规范</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 图片3：金字塔 -->
+        <div class="image-card">
+            <div class="image-header">
+                <span class="image-title">IMAGE 03 - 技术机制</span>
+                <div class="image-actions">
+                    <button class="btn btn-preview" onclick="previewImage('img3')"><span class="btn-text">预览</span></button>
+                    <button class="btn btn-download" onclick="downloadImage('img3', 'claude-skills-mechanism', this)"><span class="btn-text">下载</span></button>
+                </div>
+            </div>
+            <div class="img3-container" id="img3">
+                <div class="img3-bg-grid"></div>
+                <div class="img3-content">
+                    <div class="img3-pyramid">
+                        <div class="img3-level img3-level-1">
+                            <div>
+                                <div class="img3-level-label">L3 参考文件</div>
+                                <div class="img3-level-desc">使用时动态加载</div>
+                            </div>
+                        </div>
+                        <div class="img3-level img3-level-2">
+                            <div>
+                                <div class="img3-level-label">L2 完整技能</div>
+                                <div class="img3-level-desc">按需加载SKILL.md</div>
+                            </div>
+                            <span class="img3-level-token">~3000 tokens</span>
+                        </div>
+                        <div class="img3-level img3-level-3">
+                            <div>
+                                <div class="img3-level-label">L1 元数据</div>
+                                <div class="img3-level-desc">技能名称/描述</div>
+                            </div>
+                            <span class="img3-level-token">~100 tokens</span>
+                        </div>
+                    </div>
+                    <div class="img3-info">
+                        <h2 class="img3-info-title">
+                            <span class="img3-info-title-accent">渐进式披露</span><br>三级加载机制
+                        </h2>
+                        <p class="img3-info-desc">
+                            Claude Skills采用智能分级加载技术，初始仅加载轻量级元数据，按需调用完整技能和参考资源，实现极致的Token效率。
+                        </p>
+                        <div class="img3-formula">
+                            <div class="img3-formula-title">TOKEN节省计算</div>
+                            <div class="img3-formula-content">
+                                传统方式: 3100+ tokens/次<br>
+                                Skills方式: <span class="img3-formula-highlight">100 tokens</span> 初始<br>
+                                ──────────────────<br>
+                                节省: <span class="img3-formula-highlight">90%+</span> Token消耗
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 图片4：时间轴 -->
+        <div class="image-card">
+            <div class="image-header">
+                <span class="image-title">IMAGE 04 - 课程体系</span>
+                <div class="image-actions">
+                    <button class="btn btn-preview" onclick="previewImage('img4')"><span class="btn-text">预览</span></button>
+                    <button class="btn btn-download" onclick="downloadImage('img4', 'claude-skills-roadmap', this)"><span class="btn-text">下载</span></button>
+                </div>
+            </div>
+            <div class="img4-container" id="img4">
+                <div class="img4-bg-glow"></div>
+                <div class="img4-content">
+                    <div class="img4-header">
+                        <h2 class="img4-title">教程课程体系</h2>
+                        <p class="img4-subtitle">从入门到精通的完整学习路径</p>
+                    </div>
+                    <div class="img4-timeline">
+                        <div class="img4-chapter img4-chapter-beginner">
+                            <div class="img4-chapter-icon">🔑</div>
+                            <div class="img4-chapter-badge">入门</div>
+                            <div class="img4-chapter-title">概念入门</div>
+                            <div class="img4-chapter-desc">什么是Skills</div>
+                        </div>
+                        <div class="img4-chapter img4-chapter-beginner">
+                            <div class="img4-chapter-icon">🚀</div>
+                            <div class="img4-chapter-badge">入门</div>
+                            <div class="img4-chapter-title">实战创建</div>
+                            <div class="img4-chapter-desc">五分钟快速上手</div>
+                        </div>
+                        <div class="img4-chapter img4-chapter-beginner">
+                            <div class="img4-chapter-icon">⚡</div>
+                            <div class="img4-chapter-badge">入门</div>
+                            <div class="img4-chapter-title">机制对比</div>
+                            <div class="img4-chapter-desc">vs传统提示词</div>
+                        </div>
+                        <div class="img4-chapter img4-chapter-advanced">
+                            <div class="img4-chapter-icon">🔧</div>
+                            <div class="img4-chapter-badge">进阶</div>
+                            <div class="img4-chapter-title">高级用法</div>
+                            <div class="img4-chapter-desc">复杂技能设计</div>
+                        </div>
+                        <div class="img4-chapter img4-chapter-advanced">
+                            <div class="img4-chapter-icon">👥</div>
+                            <div class="img4-chapter-badge">进阶</div>
+                            <div class="img4-chapter-title">团队协作</div>
+                            <div class="img4-chapter-desc">Git共享配置</div>
+                        </div>
+                        <div class="img4-chapter img4-chapter-advanced">
+                            <div class="img4-chapter-icon">⚡</div>
+                            <div class="img4-chapter-badge">进阶</div>
+                            <div class="img4-chapter-title">性能优化</div>
+                            <div class="img4-chapter-desc">Token最佳实践</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 预览模态框 -->
+    <div class="modal" id="previewModal" onclick="closeModal()">
+        <span class="modal-close">&times;</span>
+        <div class="modal-content" id="modalContent"></div>
+    </div>
+
+    <!-- Toast 通知 -->
+    <div class="toast" id="toast"></div>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        // Toast 通知函数
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = isError ? 'toast error show' : 'toast show';
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // 下载图片函数（优化版）
+        async function downloadImage(imgId, filename, button) {
+            const element = document.getElementById(imgId);
+
+            // 添加loading状态
+            button.classList.add('btn-loading');
+            button.disabled = true;
+
+            try {
+                // 使用 requestIdleCallback 或 setTimeout 让出主线程
+                await new Promise(resolve => setTimeout(resolve, 50));
+
+                const canvas = await html2canvas(element, {
+                    scale: 2,
+                    backgroundColor: '#0d1321',
+                    logging: false,
+                    useCORS: true,
+                    allowTaint: true,
+                    imageTimeout: 5000,
+                    removeContainer: true
+                });
+
+                // 转换为blob并下载
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.download = filename + '.png';
+                        link.href = url;
+                        link.click();
+
+                        // 清理
+                        setTimeout(() => URL.revokeObjectURL(url), 100);
+                        showToast('✓ 下载成功！');
+                    } else {
+                        showToast('下载失败，请重试', true);
+                    }
+
+                    // 移除loading状态
+                    button.classList.remove('btn-loading');
+                    button.disabled = false;
+                }, 'image/png');
+            } catch (error) {
+                console.error('下载出错:', error);
+                showToast('下载出错：' + error.message, true);
+                button.classList.remove('btn-loading');
+                button.disabled = false;
+            }
+        }
+
+        // 预览图片函数
+        function previewImage(imgId) {
+            const element = document.getElementById(imgId);
+            const modal = document.getElementById('previewModal');
+            const content = document.getElementById('modalContent');
+
+            // 克隆元素
+            const clone = element.cloneNode(true);
+            clone.style.width = '100%';
+            clone.style.maxWidth = '1200px';
+
+            content.innerHTML = '';
+            content.appendChild(clone);
+            modal.classList.add('active');
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('previewModal').classList.remove('active');
+        }
+
+        // ESC键关闭预览
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
