@@ -302,3 +302,27 @@ skill-name/
 - 相比其他教程：更侧重实际应用而非纯技术讲解
 - 相比官方文档：更通俗易懂，有实战案例
 - 相比视频教程：可快速查阅，便于收藏分享
+
+### 微信公众号文章格式规范 ⭐
+
+**基本格式**：
+- 不使用 `---` 分隔线
+- 段落之间用空行分隔
+
+**参考资源格式**（公众号不支持外链）：
+
+```
+**参考资源**：
+
+GitHub 官方仓库：anthropics/skills/frontend-design
+https://github.com/anthropics/skills/tree/main/skills/frontend-design
+
+知乎教程：紫色渐变UI看吐了？用Claude Skills轻松解决
+https://zhuanlan.zhihu.com/p/1974526722738262176
+```
+
+格式说明：
+- 标题和链接分两行
+- 第一行：`来源类型：文章标题`
+- 第二行：完整 URL
+- 每个资源之间空一行

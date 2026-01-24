@@ -55,7 +55,14 @@
       "Skill(mp-wechat-flow)",
       "Skill(mp-wechat-flow:*)",
       "Skill(frontend-design)",
-      "Skill(frontend-design:*)"
+      "Skill(frontend-design:*)",
+      "Bash(for:*)",
+      "Bash(do:*)",
+      "Bash(done:*)",
+      "mcp__context7__resolve-library-id",
+      "Bash(claude mcp add:*)",
+      "Bash(claude mcp:*)",
+      "mcp__tavily-local__tavily_search"
     ],
     "deny": [
       "Read(./secrets/**)",
