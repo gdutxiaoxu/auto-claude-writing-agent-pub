@@ -4,13 +4,14 @@
 
 
 
+
 ## 01 微软在用Claude？这事儿有点魔幻
 
 微软是OpenAI最大投资方，也是GitHub Copilot的亲爹。但最近有消息说，他们正在内部推广使用Claude Code——竞争对手的产品。
 
 报道提到的好几个细节挺耐人寻味：
 
-- 不只是开发部门，Windows、Microsoft 365、Teams、Bing、Edge、Surface等多个团队都在用
+- 不只是开发部门  ，Windows、Microsoft 365、Teams、Bing、Edge、Surface等多个团队都在用
 - 设计师、项目经理这些非技术岗位也被鼓励试试
 - 微软甚至在考虑通过Azure对外销售Claude Code
 
